@@ -59,6 +59,18 @@ This project implements a subset of the real ADA Cloud Config Profile as an exec
 This mirrors the real pipeline: **Input Gateway → Message Queue → Parallel Workers → Rule Core → Reporting**, just running on a single machine instead of Northflank-managed infrastructure on Azure.
 
 ---
+## Architecture Decisions
+
+Key architectural decisions are documented as Architecture Decision Records (ADRs) under [`docs/adr/`](docs/adr/).
+
+Current ADRs:
+
+- [ADR 0001 — Use RabbitMQ for asynchronous job processing](docs/adr/0001-use-rabbitmq-over-direct-calls.md)
+- [ADR 0002 — Use Pydantic models to validate cloud state input](docs/adr/0002-pydantic-for-input-validation.md)
+
+These records capture the reasoning behind major technical decisions, the alternatives that were considered, and the trade-offs involved. They provide historical context so future contributors understand *why* decisions were made—not just *what* was implemented.
+
+---
 
 ## What the rule engine checks
 

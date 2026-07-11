@@ -1,31 +1,51 @@
-# version: "3.8" // Modern Docker (V2) auto process files using standars --> version ... = trigger deprecation warnings !!
 services:
   rabbitmq:
-    # image: rabbitmq:3-management // --> rabbitmq:3.13-management-alpine (ALPINE  reduces image size and vulnerabilities)
     image: rabbitmq:3.13-management-alpine
     ports:
       - "5672:5672" 
       - "15672:15672" 
-      # Secured Credentials via Variables
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-admin}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
-      # Added Data & Log Persistence
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
       - rabbitmq_logs:/var/log/rabbitmq
-    # Configured Resource Limits
     networks:
-      - amqp-network
+      - app-network
     restart: unless-stopped
     deploy:
       resources:
         limits:
           cpus: '1.0'
           memory: 2G
-    # Implemented an Active Health Check
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  localstack:
+    image: localstack/localstack:3.8  # Pinned specific version instead of latest
+    ports:
+      - "4566:4566"
+    environment:
+      # Note: LocalStack v2/v3 auto-enables services on demand. 
+      # Explicitly defining them is kept here as per your request.
+      - SERVICES=iam,s3
+      - AWS_DEFAULT_REGION=${AWS_REGION:-us-east-1}
+    volumes:
+      - localstack_data:/var/lib/localstack
+      - "/var/run/docker.sock:/var/run/docker.sock" # Required if your LocalStack features trigger internal containers
+    networks:
+      - app-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:4566/_localstack/health | grep -q '\"s3\": \"available\"'"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -33,7 +53,8 @@ services:
 volumes:
   rabbitmq_data:
   rabbitmq_logs:
+  localstack_data: # Persists your local S3 buckets and IAM configurations
 
 networks:
-  amqp-network:
+  app-network: # Renamed generic network so both rabbitmq and localstack talk securely
     driver: bridge

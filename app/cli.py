@@ -1,5 +1,6 @@
 import typer, json
 from app.rules.engine import run_engine
+from app.collectors.aws_collector import AWSCollector
 
 app = typer.Typer(help="Mini Greenlight Engine — ADA Cloud Config audit CLI")
 
@@ -19,5 +20,15 @@ def version():
     """Show the engine version."""
     typer.echo("Mini Greenlight Engine v0.1.0")
 
+@app.command()
+def scan_live(endpoint_url: str = "http://localhost:4566", output_dir: str = "results"):
+    """Collect live state from LocalStack and run the engine against it."""
+    collector = AWSCollector(endpoint_url=endpoint_url)
+    state = collector.collect_all()
+    report = run_engine(state)
+    typer.echo(f"Risk score: {report['risk_score']}/100")
+    with open(f"{output_dir}/live_report.json", "w") as f:
+        json.dump(report, f, indent=2)
+        
 if __name__ == "__main__":
     app()
