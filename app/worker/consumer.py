@@ -1,6 +1,8 @@
 import pika, json
 from app.rules.engine import run_engine
 from dotenv import load_dotenv
+from app.reports.docx_report import generate_docx_report
+
 import os
 
 def callback(ch, method, properties, body):
@@ -9,6 +11,8 @@ def callback(ch, method, properties, body):
     report = run_engine(job["cloud_state"])
     with open(f"results/{job['job_id']}_report.json", "w") as f:
         json.dump(report, f, indent=2)
+        generate_docx_report(report, f"results/{job['job_id']}_report.docx", job.get("vendor_name", "Test Vendor"))
+
     print(f"Job {job['job_id']} done: {report['summary']}")
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
