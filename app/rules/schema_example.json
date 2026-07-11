@@ -1,9 +1,28 @@
 {
+  "vendor_name": "Acme AI Vendor",
+  "cloud_provider": "gcp",
   "iam_users": [
-    {"name": "admin1", "mfa_enabled": false, "last_login_days_ago": 10, "access_key_age_days": 120},
-    {"name": "dev2", "mfa_enabled": true, "last_login_days_ago": 60, "access_key_age_days": 30}
+    {"name": "admin1", "mfa_enabled": false, "last_login_days_ago": 10, "access_key_age_days": 120, "role": "admin"},
+    {"name": "dev2", "mfa_enabled": true, "last_login_days_ago": 60, "access_key_age_days": 30, "role": "developer"},
+    {"name": "service-bot", "mfa_enabled": false, "last_login_days_ago": 5, "access_key_age_days": 400, "role": "service_account"}
   ],
   "storage_buckets": [
-    {"name": "app-data", "encrypted": false, "public_access": true}
+    {"name": "app-data", "encrypted": false, "public_access": true},
+    {"name": "backups", "encrypted": true, "public_access": false}
+  ],
+  "compute_instances": [
+    {"name": "web-server-1", "runtime": "python3.7", "runtime_supported": false, "secure_boot_enabled": false, "https_only": false, "tls_version": "1.0"},
+    {"name": "api-server-2", "runtime": "python3.12", "runtime_supported": true, "secure_boot_enabled": true, "https_only": true, "tls_version": "1.3"}
+  ],
+  "network_configs": [
+    {"name": "default-vpc", "ssh_open_to_world": true, "rdp_open_to_world": false, "firewall_default_deny": false},
+    {"name": "prod-vpc", "ssh_open_to_world": false, "rdp_open_to_world": false, "firewall_default_deny": true}
+  ],
+  "logging_configs": [
+    {"resource_name": "project-main", "audit_logging_enabled": false, "log_retention_days": 15, "incident_contact_configured": false}
+  ],
+  "databases": [
+    {"name": "prod-db", "encrypted_at_rest": false, "publicly_accessible": true, "backup_enabled": true},
+    {"name": "staging-db", "encrypted_at_rest": true, "publicly_accessible": false, "backup_enabled": false}
   ]
 }
