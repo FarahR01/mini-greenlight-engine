@@ -11,24 +11,46 @@ from app.rules.schema import CloudState
 
 
 def run_engine(cloud_state: dict) -> dict:
-    validated = CloudState(**cloud_state_raw)  # lève une erreur claire si le JSON est malformé
+
+    validated = CloudState(**cloud_state)
+
     cloud_state = validated.model_dump()
 
     all_results = []
 
     for rule in RULE_REGISTRY:
-        all_results.extend(rule.evaluate(cloud_state))
+        all_results.extend(
+            rule.evaluate(cloud_state)
+        )
 
-    passed = sum(r.status == "PASS" for r in all_results)
-    failed = sum(r.status == "FAIL" for r in all_results)
+
+    passed = sum(
+        r.status == "PASS"
+        for r in all_results
+    )
+
+    failed = sum(
+        r.status == "FAIL"
+        for r in all_results
+    )
+
+
+    risk_score = compute_risk_score(all_results)
+
 
     return {
+        "risk_score": risk_score,
+
         "summary": {
             "total": len(all_results),
             "passed": passed,
             "failed": failed,
         },
-        "results": [r.model_dump() for r in all_results],
+
+        "results": [
+            r.model_dump()
+            for r in all_results
+        ],
     }
 
 SEVERITY_WEIGHT = {"CRITICAL": 10, "HIGH": 5, "MEDIUM": 2, "LOW": 1}
