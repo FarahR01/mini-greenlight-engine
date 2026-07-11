@@ -38,4 +38,6 @@ jobs:
 
           # 4. Exécution des tests
       - name: Run tests with pytest
+        env:
+          GREENLIGHT_API_KEY: test-ci-key
         run: pytest tests/

@@ -1,6 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from pydantic import BaseModel
 import pika, json, uuid
+from app.gateway.auth import verify_api_key
 
 app = FastAPI(title="Mini Greenlight Engine")
 
@@ -17,7 +18,7 @@ class ScanRequest(BaseModel):
     vendor_name: str
     cloud_state: dict
 
-@app.post("/scan")
+@app.post("/scan", dependencies=[Depends(verify_api_key)])
 def submit_scan(req: ScanRequest):
     job_id = str(uuid.uuid4())
     # Pour l'instant : écrit direct un fichier "job" (le RabbitMQ arrive à l'étape suivante)

@@ -1,0 +1,13 @@
+{
+  "vendor_name": "Acme AI Vendor",
+  "cloud_state": {
+    "vendor_name": "Acme AI Vendor",
+    "cloud_provider": "gcp",
+    "iam_users": [
+      {"name": "admin1", "mfa_enabled": false, "last_login_days_ago": 10, "access_key_age_days": 120, "role": "admin"}
+    ],
+    "storage_buckets": [
+      {"name": "app-data", "encrypted": false, "public_access": true}
+    ]
+  }
+}
