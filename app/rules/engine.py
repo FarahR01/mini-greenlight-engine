@@ -4,6 +4,11 @@ import json
 import app.rules.mfa_rule
 import app.rules.dormancy_rule
 import app.rules.key_rotation_rule
+import app.rules.database_rules
+import app.rules.compute_rules
+import app.rules.network_rules
+import app.rules.logging_rules
+
 import app.rules.storage_encryption_rule
 
 from app.rules.registry import RULE_REGISTRY
@@ -22,7 +27,10 @@ def run_engine(cloud_state: dict) -> dict:
         all_results.extend(
             rule.evaluate(cloud_state)
         )
-
+    by_domain = {}
+    for r in all_results:
+        by_domain.setdefault(r.domain, {"passed": 0, "failed": 0})
+        by_domain[r.domain]["passed" if r.status == "PASS" else "failed"] += 1
 
     passed = sum(
         r.status == "PASS"
@@ -39,18 +47,15 @@ def run_engine(cloud_state: dict) -> dict:
 
 
     return {
-        "risk_score": risk_score,
-
+        "vendor_name": validated.vendor_name,
+        "risk_score": compute_risk_score(all_results),
         "summary": {
             "total": len(all_results),
-            "passed": passed,
-            "failed": failed,
+            "passed": sum(1 for r in all_results if r.status == "PASS"),
+            "failed": sum(1 for r in all_results if r.status == "FAIL"),
         },
-
-        "results": [
-            r.model_dump()
-            for r in all_results
-        ],
+        "by_domain": by_domain,
+        "results": [r.model_dump() for r in all_results]
     }
 
 SEVERITY_WEIGHT = {"CRITICAL": 10, "HIGH": 5, "MEDIUM": 2, "LOW": 1}
