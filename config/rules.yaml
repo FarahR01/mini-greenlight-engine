@@ -1,0 +1,4 @@
+IAM-002:
+  dormancy_threshold_days: 45
+IAM-003:
+  key_rotation_threshold_days: 90
