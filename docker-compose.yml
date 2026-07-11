@@ -25,17 +25,15 @@ services:
       retries: 3
 
   localstack:
-    image: localstack/localstack:3.8  # Pinned specific version instead of latest
+    image: localstack/localstack:3.8
     ports:
       - "4566:4566"
     environment:
-      # Note: LocalStack v2/v3 auto-enables services on demand. 
-      # Explicitly defining them is kept here as per your request.
       - SERVICES=iam,s3
       - AWS_DEFAULT_REGION=${AWS_REGION:-us-east-1}
     volumes:
       - localstack_data:/var/lib/localstack
-      - "/var/run/docker.sock:/var/run/docker.sock" # Required if your LocalStack features trigger internal containers
+      - "/var/run/docker.sock:/var/run/docker.sock"
     networks:
       - app-network
     restart: unless-stopped
@@ -50,11 +48,38 @@ services:
       timeout: 5s
       retries: 3
 
+  postgres:
+    image: postgres:16-alpine # Utilisation d'Alpine pour réduire la taille et les vulnérabilités
+    ports:
+      - "5433:5432"
+    environment:
+      # Remplacement des valeurs codées en dur par des variables sécurisées avec valeurs par défaut
+      POSTGRES_USER: ${POSTGRES_USER:-greenlight}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-greenlight}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G # Limite stricte pour éviter les fuites de mémoire sur l'hôte
+    healthcheck:
+      # Utilisation dynamique de la variable d'utilisateur pour le test de santé
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-greenlight} -d $${POSTGRES_DB:-greenlight}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
 volumes:
   rabbitmq_data:
   rabbitmq_logs:
-  localstack_data: # Persists your local S3 buckets and IAM configurations
+  localstack_data:
+  pgdata: # Volume nommé persistant pour PostgreSQL
 
 networks:
-  app-network: # Renamed generic network so both rabbitmq and localstack talk securely
+  app-network:
     driver: bridge
