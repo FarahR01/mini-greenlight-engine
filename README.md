@@ -238,13 +238,14 @@ To be transparent about scope, since this is a learning project, not a productio
 ## Roadmap (what I'd build next with more time)
 
 ### Completed
-- [x] LocalStack live AWS collector (replacing the static JSON fixture with a locally emulated AWS account)
-- [x] PostgreSQL persistence + scan history (replacing flat JSON result files)
-- [x] Compliance drift comparison between two scans of the same vendor
-- [x] Automated Tier 1 verification script (OS detection, Docker health checks, full pipeline test)
+- [x] LocalStack live AWS collector
+- [x] PostgreSQL persistence + scan history
+- [x] Compliance drift comparison
+- [x] Automated Tier 1 verification script
+- [x] Trivy container image vulnerability scanning (live-validated against nginx:latest)
 
 ### In progress
-- [ ] Trivy container image vulnerability scanning — collector, rule, and unit tests (with mocks) are implemented and passing; live scanning is blocked intermittently by slow/unreliable access to Trivy's vulnerability DB mirror from my network. Code is ready, live validation pending a stable connection.
+
 
 ### Not yet started
 - [ ] Add SBOM/CVE cross-referencing for a lightweight SCA layer (would generalize the Trivy work into a proper SBOM comparison, not just per-image scans)
