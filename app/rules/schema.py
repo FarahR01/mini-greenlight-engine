@@ -39,6 +39,11 @@ class DatabaseInstance(BaseModel):
     publicly_accessible: bool = False
     backup_enabled: bool = False
 
+# Container image representation for container rules like scanning for vulnerabilities
+class ContainerImage(BaseModel):
+    image: str
+    scanned_at: str = ""
+    vulnerabilities: list[dict] = []
 class CloudState(BaseModel):
     vendor_name: str = "Unknown Vendor"
     cloud_provider: str = "unknown"
@@ -48,3 +53,4 @@ class CloudState(BaseModel):
     network_configs: list[NetworkConfig] = []
     logging_configs: list[LoggingConfig] = []
     databases: list[DatabaseInstance] = []
+    container_images: list[ContainerImage] = [] # This field is for container rules, like Trivy scans
