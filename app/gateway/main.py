@@ -5,7 +5,7 @@ import json
 import uuid
 import os
 from dotenv import load_dotenv
-
+from app.reports.drift import compute_drift
 load_dotenv()
 from app.gateway.auth import verify_api_key
 
@@ -171,5 +171,17 @@ def get_scan(job_id: str):
             "created_at": record.created_at.isoformat()
         }
 
+    finally:
+        db.close()
+
+@app.get("/scans/drift", dependencies=[Depends(verify_api_key)])
+def get_drift(from_job: str, to_job: str):
+    db = SessionLocal()
+    try:
+        old = db.query(ScanResultModel).filter(ScanResultModel.job_id == from_job).first()
+        new = db.query(ScanResultModel).filter(ScanResultModel.job_id == to_job).first()
+        if not old or not new:
+            raise HTTPException(status_code=404, detail="One or both scans not found")
+        return compute_drift(old.results_json, new.results_json)
     finally:
         db.close()
