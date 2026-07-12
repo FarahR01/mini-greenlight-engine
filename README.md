@@ -205,6 +205,16 @@ pytest tests/
 After fixing a subset of failing controls (e.g. enabling MFA, encrypting a bucket) and re-running the scan, the risk score improves — demonstrating the same remediation → revalidation cycle used in real ADA assessments.
 
 ---
+## Automated verification
+
+Run the full Tier 1 test suite (Docker health, rule engine, LocalStack,
+auth, async pipeline, DOCX report, pytest) with one command:
+
+\```bash
+python scripts/run_tier1_checks.py
+\```
+
+---
 
 ## What this project deliberately does NOT do
 
