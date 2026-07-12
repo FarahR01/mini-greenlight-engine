@@ -8,7 +8,7 @@ import app.rules.database_rules
 import app.rules.compute_rules
 import app.rules.network_rules
 import app.rules.logging_rules
-
+from app.rules import container_rules  # noqa: F401
 import app.rules.storage_encryption_rule
 
 from app.rules.registry import RULE_REGISTRY
