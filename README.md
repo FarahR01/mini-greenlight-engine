@@ -215,7 +215,16 @@ python scripts/run_tier1_checks.py
 \```
 
 ---
+## Known limitation (as of this submission)
 
+The Trivy integration is implemented and unit-tested (see
+`tests/test_container_rules.py`), but live scanning depends on
+downloading Trivy's vulnerability database from `mirror.gcr.io`, which
+was intermittently unreachable from my network during development.
+The collector code, rule logic, and test coverage are complete and
+verified independently via mocks — only the live network fetch is
+currently blocked.
+---
 ## What this project deliberately does NOT do
 
 To be transparent about scope, since this is a learning project, not a production system:
@@ -228,10 +237,20 @@ To be transparent about scope, since this is a learning project, not a productio
 
 ## Roadmap (what I'd build next with more time)
 
-- [ ] Integrate [LocalStack](https://www.localstack.cloud/) to run checks against a locally emulated AWS account instead of a static JSON file
-- [ ] Add Azure domain support (the real `ada-cloud-audit` tool doesn't have this yet either)
-- [ ] Add SBOM/CVE cross-referencing for a lightweight SCA layer
-- [ ] Persist results to PostgreSQL instead of flat files, with a small dashboard
+### Completed
+- [x] LocalStack live AWS collector (replacing the static JSON fixture with a locally emulated AWS account)
+- [x] PostgreSQL persistence + scan history (replacing flat JSON result files)
+- [x] Compliance drift comparison between two scans of the same vendor
+- [x] Automated Tier 1 verification script (OS detection, Docker health checks, full pipeline test)
+
+### In progress
+- [ ] Trivy container image vulnerability scanning — collector, rule, and unit tests (with mocks) are implemented and passing; live scanning is blocked intermittently by slow/unreliable access to Trivy's vulnerability DB mirror from my network. Code is ready, live validation pending a stable connection.
+
+### Not yet started
+- [ ] Add SBOM/CVE cross-referencing for a lightweight SCA layer (would generalize the Trivy work into a proper SBOM comparison, not just per-image scans)
+- [ ] OWASP ZAP DAST integration against the gateway itself
+- [ ] Simple web dashboard for scan history and risk trends
+- [ ] Azure domain support (matching the real `ada-cloud-audit` tool's current gap)
 - [ ] Deploy the full pipeline to Northflank's free tier with CI/CD auto-deploy on merge to `main`
 
 ---
