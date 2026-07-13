@@ -2,6 +2,7 @@ import typer, json
 from app.rules.engine import run_engine
 from app.collectors.aws_collector import AWSCollector
 from app.collectors.trivy_collector import TrivyCollector
+from app.collectors.sca_collector import SCACollector
 
 app = typer.Typer(help="Mini Greenlight Engine — ADA Cloud Config audit CLI")
 
@@ -48,5 +49,22 @@ def scan_container(image: str = "nginx:latest", output_dir: str = "results"):
     with open(f"{output_dir}/container_scan_report.json", "w") as f:
         json.dump(report, f, indent=2)
               
+@app.command()
+def scan_dependencies(output_dir: str = "results"):
+    """Scan project Python dependencies for known vulnerabilities via pip-audit."""
+    collector = SCACollector()
+    try:
+        state = collector.to_cloud_state_fragment()
+    except RuntimeError as e:
+        typer.echo(f"Error: {e}")
+        raise typer.Exit(code=1)
+
+    state["vendor_name"] = "Project dependencies (pip-audit)"
+    report = run_engine(state)
+    typer.echo(f"Risk score: {report['risk_score']}/100")
+    typer.echo(f"Passed: {report['summary']['passed']} | Failed: {report['summary']['failed']}")
+    with open(f"{output_dir}/sca_report.json", "w") as f:
+        json.dump(report, f, indent=2)
+
 if __name__ == "__main__":
     app()
