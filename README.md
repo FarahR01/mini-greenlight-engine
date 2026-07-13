@@ -67,8 +67,12 @@ Current ADRs:
 
 - [ADR 0001 — Use RabbitMQ for asynchronous job processing](docs/adr/0001-use-rabbitmq-over-direct-calls.md)
 - [ADR 0002 — Use Pydantic models to validate cloud state input](docs/adr/0002-pydantic-for-input-validation.md)
+- [ADR 0003 — Always provide explicit defaults for secrets in docker-compose.yml](docs/adr/0003-env-var-defaults-in-compose.md)
+- [ADR 0004 — Always reference GitHub's actual issue number, not a self-chosen title number](docs/adr/0004-github-issue-numbering-gotcha.md)
+- [ADR 0005 — Use CloudAMQP instead of self-hosting RabbitMQ on Northflank](docs/adr/0005-cloudamqp-instead-of-rabbitmq-service.md)
+- [ADR 0006 — Northflank deployment blocked by payment card verification](docs/adr/0006-northflank-payment-card-limitation.md)
 
-These records capture the reasoning behind major technical decisions, the alternatives that were considered, and the trade-offs involved. They provide historical context so future contributors understand *why* decisions were made—not just *what* was implemented.
+These records capture the reasoning behind major technical decisions, real incidents encountered during development, and the trade-offs involved. They provide historical context so future contributors understand *why* decisions were made — not just *what* was implemented.
 
 ---
 
@@ -203,7 +207,16 @@ pytest tests/
 }
 ```
 After fixing a subset of failing controls (e.g. enabling MFA, encrypting a bucket) and re-running the scan, the risk score improves — demonstrating the same remediation → revalidation cycle used in real ADA assessments.
+---
 
+## Deployment status
+
+The application architecture was fully designed for deployment on Northflank's free tier, constrained to 2 services + 1 managed addon (see [ADR 0005](docs/adr/0005-cloudamqp-instead-of-rabbitmq-service.md)):
+- **RabbitMQ**: successfully migrated to [CloudAMQP](https://www.cloudamqp.com/)'s free tier — connection verified end to end, with the gateway and worker running locally against the real external broker
+- **PostgreSQL**: Northflank's managed addon requires payment card verification even on the free "Developer Sandbox" tier. Cards available to me in Tunisia were not accepted by Northflank's payment processor (unrelated to the code or architecture — see [ADR 0006](docs/adr/0006-northflank-payment-card-limitation.md)). [Neon.tech](https://neon.tech) (card-free managed Postgres) is identified as a drop-in replacement.
+- **Gateway/Worker services**: Dockerfiles are written and ready (`Dockerfile.gateway`, `Dockerfile.worker`); live hosting on Northflank is blocked by the same payment verification requirement.
+
+In short: the integration code for external managed services is written and validated (CloudAMQP works live); only the Northflank-hosted portion is blocked by a platform-side payment verification issue outside my control.
 ---
 ## Automated verification
 
@@ -231,8 +244,7 @@ To be transparent about scope, since this is a learning project, not a productio
 - It does not connect to a real AWS/GCP/Azure account — it evaluates a simulated JSON cloud state (see [why](#context))
 - It does not implement the full ADA specification (hundreds of checks) — a representative subset across all 6 domains
 - It does not run actual attack simulations ("Fleck Attack Vectors") — that's simulated adversarial testing, out of scope for a solo weekend project
-- It is not connected to Northflank in production — deployed to Northflank's free sandbox tier for demonstration purposes only
-
+- It is not fully hosted on Northflank — see [Deployment status](#deployment-status) for what was completed and what was blocked
 ---
 
 ## Roadmap (what I'd build next with more time)
@@ -243,17 +255,17 @@ To be transparent about scope, since this is a learning project, not a productio
 - [x] Compliance drift comparison
 - [x] Automated Tier 1 verification script
 - [x] Trivy container image vulnerability scanning (live-validated against nginx:latest)
+- [x] CloudAMQP integration for RabbitMQ (live-validated)
 
-### In progress
-
+### Blocked (external constraint, not technical)
+- [ ] Full Northflank hosting for gateway + worker services — blocked by payment card verification (see ADR 0006)
+- [ ] Managed PostgreSQL — Neon.tech identified as card-free alternative, not yet executed
 
 ### Not yet started
-- [ ] Add SBOM/CVE cross-referencing for a lightweight SCA layer (would generalize the Trivy work into a proper SBOM comparison, not just per-image scans)
+- [ ] Add SBOM/CVE cross-referencing for a lightweight SCA layer
 - [ ] OWASP ZAP DAST integration against the gateway itself
 - [ ] Simple web dashboard for scan history and risk trends
 - [ ] Azure domain support (matching the real `ada-cloud-audit` tool's current gap)
-- [ ] Deploy the full pipeline to Northflank's free tier with CI/CD auto-deploy on merge to `main`
-
 ---
 
 ## Why I built this
