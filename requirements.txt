@@ -58,7 +58,8 @@ pytest==9.1.1
 python-dateutil==2.9.0.post0
 python-docx==1.2.0
 python-dotenv==1.2.2
-pywin32==312
+
+
 PyYAML==6.0.3
 requests==2.34.2
 rich==15.0.0
@@ -78,4 +79,5 @@ typing-inspection==0.4.2
 typing_extensions==4.16.0
 urllib3==2.7.0
 uvicorn==0.51.0
-windows-curses==2.4.2
+pywin32==312; sys_platform == "win32"
+windows-curses==2.4.2; sys_platform == "win32"
