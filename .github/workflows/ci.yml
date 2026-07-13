@@ -1,5 +1,5 @@
 name: CI
-# on: [push, pull_request]
+
 on:
   push:
     branches: [ main, master ]
@@ -8,7 +8,7 @@ on:
       - '.gitignore'
   pull_request:
     branches: [ main, master ]
-    # Avoid that GitHub temprarry token writes in Default branch, which is not allowed
+
 permissions:
   contents: read
 
@@ -18,26 +18,43 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # - uses: actions/checkout@v4
-          # 1. Récupération du code (version épinglée par commit SHA pour la sécurité)
+      # 1. Récupération du code (version épinglée par commit SHA pour la sécurité)
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-          # 2. Configuration de Python avec mise en cache automatique des dépendances pip
+      # 2. Configuration de Python avec mise en cache automatique des dépendances pip
       - name: Set up Python 3.12
         uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
         with:
           python-version: '3.12'
-          cache: 'pip' # Active la mise en cache automatique via requirements.txt
+          cache: 'pip'
 
-          # 3. Installation des dépendances
+      # 3. Installation des dépendances
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-          # 4. Exécution des tests
+      # 4. Lint rapide — attrape les erreurs de syntaxe/imports avant même de lancer les tests
+      - name: Lint with flake8 (critical errors only)
+        run: |
+          pip install flake8
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      # 5. Exécution des tests, avec toutes les variables d'env nécessaires
+      # même en mode "factice" pour que les imports ne cassent jamais en CI
       - name: Run tests with pytest
         env:
           GREENLIGHT_API_KEY: test-ci-key
-        run: pytest tests/
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+          POSTGRES_PORT: "5433"
+          RABBITMQ_USER: test
+          RABBITMQ_PASSWORD: test
+          RABBITMQ_HOST: localhost
+          AWS_ACCESS_KEY_ID: test
+          AWS_SECRET_ACCESS_KEY: test
+          AWS_DEFAULT_REGION: us-east-1
+          AWS_ENDPOINT_URL: http://localhost:4566
+        run: pytest tests/ -v
