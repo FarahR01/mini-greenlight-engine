@@ -6,3 +6,5 @@ venv/
 results/*
 !results/.gitkeep
 .DS_Store
+
+local_Notes/
