@@ -186,7 +186,10 @@ Results land in `results/` as `<job_id>_report.json` and `<job_id>_report.docx`.
 ```bash
 pytest tests/
 ```
+### 6. View the dashboard
 
+Once you have some scans in the database, visit `http://localhost:8000/dashboard`
+and enter your API key to see scan history and risk score trends.
 ---
 
 ## Sample output
