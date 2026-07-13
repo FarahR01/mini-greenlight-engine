@@ -1,0 +1,123 @@
+{
+  "vendor_name": "Acme AI Vendor (Azure)",
+  "cloud_provider": "azure",
+
+  "iam_users": [
+    {
+      "name": "azure-admin",
+      "mfa_enabled": false,
+      "last_login_days_ago": 5,
+      "access_key_age_days": 200,
+      "role": "admin",
+      "cloud_provider": "azure"
+    },
+    {
+      "name": "azure-security-engineer",
+      "mfa_enabled": true,
+      "last_login_days_ago": 2,
+      "access_key_age_days": 30,
+      "role": "security",
+      "cloud_provider": "azure"
+    }
+  ],
+
+  "storage_buckets": [
+    {
+      "name": "azure-blob-storage-prod",
+      "encrypted": false,
+      "public_access": true,
+      "cloud_provider": "azure"
+    },
+    {
+      "name": "azure-backup-container",
+      "encrypted": true,
+      "public_access": false,
+      "cloud_provider": "azure"
+    }
+  ],
+
+  "compute_instances": [
+    {
+      "name": "azure-vm-prod-01",
+      "runtime": "python3.9",
+      "runtime_supported": true,
+      "secure_boot_enabled": true,
+      "https_only": true,
+      "tls_version": "1.2",
+      "cloud_provider": "azure"
+    },
+    {
+      "name": "azure-vm-legacy-01",
+      "runtime": "python2.7",
+      "runtime_supported": false,
+      "secure_boot_enabled": false,
+      "https_only": false,
+      "tls_version": "1.0",
+      "cloud_provider": "azure"
+    }
+  ],
+
+  "network_configs": [
+    {
+      "name": "azure-nsg-production",
+      "ssh_open_to_world": false,
+      "rdp_open_to_world": true,
+      "firewall_default_deny": false,
+      "cloud_provider": "azure"
+    },
+    {
+      "name": "azure-nsg-secure",
+      "ssh_open_to_world": false,
+      "rdp_open_to_world": false,
+      "firewall_default_deny": true,
+      "cloud_provider": "azure"
+    }
+  ],
+
+  "logging_configs": [
+    {
+      "resource_name": "azure-monitor",
+      "audit_logging_enabled": true,
+      "log_retention_days": 180,
+      "incident_contact_configured": true
+    },
+    {
+      "resource_name": "azure-dev-logs",
+      "audit_logging_enabled": false,
+      "log_retention_days": 0,
+      "incident_contact_configured": false
+    }
+  ],
+
+  "databases": [
+    {
+      "name": "azure-sql-production",
+      "encrypted_at_rest": true,
+      "publicly_accessible": false,
+      "backup_enabled": true,
+      "cloud_provider": "azure"
+    },
+    {
+      "name": "azure-sql-test",
+      "encrypted_at_rest": false,
+      "publicly_accessible": true,
+      "backup_enabled": false,
+      "cloud_provider": "azure"
+    }
+  ],
+
+  "container_images": [
+    {
+      "image": "acme.azurecr.io/ai-service:v1.0",
+      "scanned_at": "2026-07-13T10:00:00Z",
+      "vulnerabilities": [
+  {
+    "cve_id": "CVE-2026-1234",
+    "severity": "HIGH",
+    "title": "OpenSSL security vulnerability",
+    "package": "openssl"
+  }
+]
+    }
+  ]
+}
