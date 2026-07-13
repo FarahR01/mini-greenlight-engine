@@ -262,10 +262,8 @@ To be transparent about scope, since this is a learning project, not a productio
 - [ ] Managed PostgreSQL — Neon.tech identified as card-free alternative, not yet executed
 
 ### Not yet started
-- [ ] Add SBOM/CVE cross-referencing for a lightweight SCA layer
 - [ ] OWASP ZAP DAST integration against the gateway itself
 - [ ] Simple web dashboard for scan history and risk trends
-- [ ] Azure domain support (matching the real `ada-cloud-audit` tool's current gap)
 ---
 
 ## Why I built this
